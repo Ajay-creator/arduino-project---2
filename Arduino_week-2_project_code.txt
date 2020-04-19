@@ -1,0 +1,175 @@
+                                                                ARDUINO PROJECT - 2
+
+#define echoPinus_1 1 //Macro to declare 5 as echo
+#define trigPinus_1 0 // Macro to declare 4 as trig
+#define echoPinus_2 3 //Macro to declare 3 as echo
+#define trigPinus_2 2// Macro to declare 2 as trig
+
+#include<Servo.h> //loading the servo library
+#include <IRremote.h>
+
+Servo servo_1; //creating object as servo_1 
+Servo servo_2;//creating object as servo_2 
+
+long duration1, distance1,duration2,distance2;
+int pos1=0;
+int pos2=0;
+int ir_1=9;
+int ir_2=8;
+int ir_3=7;
+int ir_4=8;
+int led_r=13;
+int led_b=12;
+int led_g=11;
+int led_y=10;
+
+IRrecv irrecv1(ir_1 );
+IRrecv irrecv2(ir_2);
+IRrecv irrecv3(ir_3);
+IRrecv irrecv4(ir_4);
+decode_results results;
+
+
+
+void setup() {
+// puting my setup code here  to run once:
+Serial.begin (9600);
+pinMode(trigPinus_1, OUTPUT);
+pinMode(echoPinus_1, INPUT);
+servo_1.attach(4); 
+
+pinMode (led_r ,OUTPUT );
+pinMode (led_b ,OUTPUT );
+pinMode (led_g ,OUTPUT );
+pinMode (led_y ,OUTPUT );
+  Serial.println("Enabling 4 IRin's");
+  irrecv1.enableIRIn(); 
+  irrecv2.enableIRIn();
+  irrecv3.enableIRIn();
+  irrecv4.enableIRIn();
+  Serial.println("Enabled 4 IRin's");
+servo_2.attach(5);
+pinMode(trigPinus_2,OUTPUT);
+pinMode(echoPinus_2,INPUT);
+}
+
+
+void loop() {
+// put your main code here, to run repeatedly:
+digitalWrite(trigPinus_1, LOW);
+delayMicroseconds(100);
+digitalWrite(trigPinus_1, HIGH);
+delayMicroseconds(100);
+digitalWrite(trigPinus_1, LOW);
+duration1 = pulseIn(echoPinus_1, HIGH);
+distance1 = duration1/58.8;
+Serial.println(distance1);
+
+if(distance1<15)
+{
+for(pos1=0; pos1<=90;pos1+=1){
+servo_1.write(pos1); //writing the angle of movement in deg
+delay(15); 
+}
+
+delay(1000);
+for(pos1=90;pos1>=0;pos1-=1){
+servo_1.write(pos1);
+delay(15); } 
+delay(1000);//wait for sometime to let vehicle get in
+}
+
+// 4 IRs and 4 LEDs and IRremote 
+
+  if (irrecv1.decode(&results)) {//irrecv1.decode(&results) returns true if anything is recieved, and stores info in varible results
+    unsigned int value_1= results.value; //Get the value of results as an unsigned int, so we can use switch case
+    Serial.println(value_1,HEX);
+    switch (value_1) {
+      case 0xFD30CF: 
+      	digitalWrite(led_r , HIGH);
+        break;
+      
+      case 0xFD08F7:
+      	digitalWrite(led_r , LOW);
+      	break;
+    }
+    
+    
+    irrecv1.resume(); // Receive the next value
+  }
+
+ if (irrecv2.decode(&results)) {//irrecv2.decode(&results) returns true if anything is recieved, and stores info in varible results
+    unsigned int value_2= results.value; //Get the value of results as an unsigned int, so we can use switch case
+    Serial.println(value_2,HEX);
+    switch (value_2) {
+      case 0xFD8877: 
+      	digitalWrite(led_b, HIGH);
+        break;
+      
+      case 0xFD48B7:
+      	digitalWrite(led_b , LOW);
+      	break;
+    }
+    
+    
+    irrecv2.resume(); // Receive the next value
+  }
+
+if (irrecv3.decode(&results)) {//irrecv3.decode(&results) returns true if anything is recieved, and stores info in varible results
+    unsigned int value_3= results.value; //Get the value of results as an unsigned int, so we can use switch case
+    Serial.println(value_3,HEX);
+    switch (value_3) {
+      case 0xFD28D7: 
+      	digitalWrite(led_g, HIGH);
+        break;
+      
+      case 0xFDA857:
+      	digitalWrite(led_g, LOW);
+      	break;
+    }
+    
+    
+    irrecv3.resume(); // Receive the next value
+  }
+  
+  
+  if (irrecv4.decode(&results)) {//irrecv4.decode(&results) returns true if anything is recieved, and stores info in varible results
+    unsigned int value_4= results.value; //Get the value of results as an unsigned int, so we can use switch case
+    Serial.println(value_4,HEX);
+    switch (value_4) {
+      case 0xFD6897: 
+      	digitalWrite(led_y, HIGH);
+        break;
+      
+      case 0xFD18E7:
+      	digitalWrite(led_y, LOW);
+      	break;
+    }
+    
+    
+    irrecv4.resume(); // Receive the next value
+  }
+ 
+ //us_2  and servo_2
+digitalWrite(trigPinus_2 , LOW);
+delayMicroseconds(100);
+digitalWrite(trigPinus_2 , HIGH);
+delayMicroseconds(100);
+digitalWrite(trigPinus_2 , LOW);
+duration2 = pulseIn(echoPinus_2, HIGH);
+distance2 = duration2/58.8;
+Serial.println(distance2);
+
+if(distance2<15)
+{
+for(pos2=0; pos2<=90;pos2+=1){
+servo_2.write(pos2); //writing the angle of movement in deg
+delay(15); 
+}
+delay(1000);//wait for some time to let vehicle out
+
+for(pos2=90;pos2>=0;pos2-=1){
+servo_2.write(pos2);
+delay(15); } }
+
+}
